@@ -1,3 +1,19 @@
+%
+%Copyright 2013 Gabriel Rodríguez Rodríguez.
+%
+%This program is free software: you can redistribute it and/or modify
+%it under the terms of the GNU General Public License as published by
+%the Free Software Foundation, either version 3 of the License, or
+%(at your option) any later version.
+%
+%This program is distributed in the hope that it will be useful,
+%but WITHOUT ANY WARRANTY; without even the implied warranty of
+%MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+%GNU General Public License for more details.
+%
+%You should have received a copy of the GNU General Public License
+%along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 function varargout = cameraHDR(varargin)
 % CAMERAHDR MATLAB code for cameraHDR.fig
 %      CAMERAHDR, by itself, creates a new CAMERAHDR or raises the existing
@@ -639,7 +655,6 @@ if str2num(code) >= 0    %If was no error in the last command (take command or a
         for i=1:size(speedsHDR,2)
             exposureValues(i) = getSpeedFloat(speedsHDR(i))
         end
-        exposureValues
         
         h = waitbar(0,'Please wait... Generating hdr');
         
@@ -647,7 +662,24 @@ if str2num(code) >= 0    %If was no error in the last command (take command or a
         waitbar(0.25)
         rgb = tonemap(hdr);
         waitbar(0.50)
-        HDRfile = strcat(pathDirec,'HDR.jpg')
+        
+        saved = 0;
+        while ~saved 
+            fileInput = char(inputdlg('Give a file name for HDR (remember end with ".jpg")'));
+            file = strcat(pathDirec,fileInput);
+            bull = exist(char(file),'file');
+            if bull
+                b=questdlg('The file allready exist, do you want to overwrite?','Overwrite?','Yes','No','No');
+                switch b
+                case 'Yes'
+                    saved = 1;
+                end
+            else
+                saved = 1;
+            end
+        end
+        
+        HDRfile = file
         imwrite(rgb,HDRfile,'jpg')
         waitbar(0.75)
         %figure; imshow(rgb)
@@ -658,6 +690,7 @@ if str2num(code) >= 0    %If was no error in the last command (take command or a
         handles.img = (char(HDRfile));
         
         updatePhoto(hObject,eventdata,handles);
+        axis off;
         set(handles.pushbuttonWindow,'enable','on')
         close(h) 
     end
